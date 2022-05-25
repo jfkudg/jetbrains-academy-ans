@@ -1,5 +1,6 @@
 package tictactoe;
 
+import javax.print.attribute.standard.NumberOfDocuments;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -13,7 +14,41 @@ public class Main {
         Game game = new Game();
         game.parseBoardText(boardToken);
         game.displayBoard();
-        System.out.println(game.getGameState());
+
+        int row = 0;
+        int col = 0;
+
+        while (true) {
+            System.out.print("Enter the coordinates: ");
+            String number1 = scanner.next();
+            try {
+                row = Integer.parseInt(number1);
+            } catch (NumberFormatException e) {
+                System.out.println("You should enter numbers!");
+                continue;
+            }
+            String number2 = scanner.next();
+            try {
+                col = Integer.parseInt(number2);
+            } catch (NumberFormatException e) {
+                System.out.println("You should enter numbers!");
+                continue;
+            }
+            if (row >= 1 && row <= 3 && col >= 1 && col <= 3) {
+                String chess = game.getChessAt(row, col);
+                if (!Objects.equals(chess, "_")) {
+                    System.out.println("This cell is occupied! Choose another one!");
+                    continue;
+                }
+                break;
+            } else {
+                System.out.println("Coordinates should be from 1 to 3!");
+            }
+        }
+
+        game.placeChessAt(row, col, "X");
+        game.displayBoard();
+
     }
 }
 
@@ -38,6 +73,10 @@ class Game {
 
     public void placeChessAt(int row, int col, String chess) {
         board[row - 1][col - 1] = chess;
+    }
+
+    public String getChessAt(int row, int col) {
+        return board[row - 1][col - 1];
     }
 
     public void displayBoard() {
@@ -75,10 +114,9 @@ class Game {
         }
 
 
-
         if (countOfO == 1) {
             return "O wins";
-        }else {
+        } else {
             return "X wins";
         }
 
@@ -152,5 +190,9 @@ class Game {
             }
         }
         return true;
+    }
+
+    private void displayGameState() {
+        System.out.println(getGameState());
     }
 }
