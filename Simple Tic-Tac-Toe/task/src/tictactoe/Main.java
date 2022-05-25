@@ -1,6 +1,6 @@
 package tictactoe;
 
-import javax.print.attribute.standard.NumberOfDocuments;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -8,13 +8,28 @@ public class Main {
     public static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        System.out.print("Enter cells: ");
-        String boardToken = scanner.nextLine();
 
         Game game = new Game();
-        game.parseBoardText(boardToken);
         game.displayBoard();
+        String currentPlayer = Game.PLAYER_X;
 
+
+        while (Objects.equals(game.getGameState(), Game.GAME_STATE_NOT_FINISHED)) {
+            Position position = requestForCoordinates(game);
+            game.placeChessAt(position, currentPlayer);
+            game.displayBoard();
+
+            if (currentPlayer.equals(Game.PLAYER_X)) {
+                currentPlayer = Game.PLAYER_O;
+            } else {
+                currentPlayer = Game.PLAYER_X;
+            }
+        }
+        game.displayGameState();
+
+    }
+
+    private static Position requestForCoordinates(Game game) {
         int row = 0;
         int col = 0;
 
@@ -36,7 +51,7 @@ public class Main {
             }
             if (row >= 1 && row <= 3 && col >= 1 && col <= 3) {
                 String chess = game.getChessAt(row, col);
-                if (!Objects.equals(chess, "_")) {
+                if (!Objects.equals(chess, Game.BLANK_CHESS)) {
                     System.out.println("This cell is occupied! Choose another one!");
                     continue;
                 }
@@ -45,21 +60,48 @@ public class Main {
                 System.out.println("Coordinates should be from 1 to 3!");
             }
         }
-
-        game.placeChessAt(row, col, "X");
-        game.displayBoard();
-
+        return new Position(row, col);
     }
 }
 
+class Position {
+    private int row;
+    private int col;
+
+    public Position(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+}
 
 class Game {
+    public static final String GAME_STATE_IMPOSSIBLE = "Impossible";
+    public static final String GAME_STATE_DRAW = "Draw";
+    public static final String GAME_STATE_NOT_FINISHED = "Game not finished";
+    public static final String GAME_STATE_O_WIN = "O wins";
+    public static final String GAME_STATE_Y_WIN = "X wins";
+    public static final String PLAYER_X = "X";
+    public static final String PLAYER_O = "O";
+    public static final String BLANK_CHESS = "_";
+
     private String[][] board;
     private static int width = 3;
     private static int height = 3;
 
     public Game() {
         board = new String[height][width];
+        for (int i = 0; i < board.length; i++) {
+            String[] row = board[i];
+            Arrays.fill(row, Game.BLANK_CHESS);
+        }
     }
 
     public void parseBoardText(String boardText) {
@@ -69,6 +111,11 @@ class Game {
             int colIndex = i % width;
             board[rowIndex][colIndex] = Character.toString(chars[i]);
         }
+    }
+
+
+    public void placeChessAt(Position position, String chess) {
+        placeChessAt(position.getRow(), position.getCol(), chess);
     }
 
     public void placeChessAt(int row, int col, String chess) {
@@ -94,30 +141,30 @@ class Game {
     }
 
     public String getGameState() {
-        int countOfX = theNumberOfWinner("X");
-        int countOfO = theNumberOfWinner("O");
+        int countOfX = theNumberOfWinner(PLAYER_X);
+        int countOfO = theNumberOfWinner(PLAYER_O);
 
 
-        int x = getNumberOf("X");
-        int y = getNumberOf("O");
+        int x = getNumberOf(PLAYER_X);
+        int y = getNumberOf(PLAYER_O);
         if (Math.abs(x - y) >= 2 || countOfX + countOfO > 1) {
-            return "Impossible";
+            return GAME_STATE_IMPOSSIBLE;
         }
 
 
         if (countOfO == 0 && countOfX == 0) {
-            if (getNumberOf("_") == 0) {
-                return "Draw";
+            if (getNumberOf(BLANK_CHESS) == 0) {
+                return GAME_STATE_DRAW;
             } else {
-                return "Game not finished";
+                return GAME_STATE_NOT_FINISHED;
             }
         }
 
 
         if (countOfO == 1) {
-            return "O wins";
+            return GAME_STATE_O_WIN;
         } else {
-            return "X wins";
+            return GAME_STATE_Y_WIN;
         }
 
 
@@ -192,7 +239,7 @@ class Game {
         return true;
     }
 
-    private void displayGameState() {
+    public void displayGameState() {
         System.out.println(getGameState());
     }
 }
