@@ -1,20 +1,16 @@
 package tictactoe;
 
+import java.util.Scanner;
+
 public class Main {
+    public static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
+        System.out.print("Enter cells: ");
+        String boardToken = scanner.nextLine();
+
         Game game = new Game();
-        game.placeChessAt(1, 1, "X");
-        game.placeChessAt(1, 2, "O");
-        game.placeChessAt(1, 3, "X");
-
-        game.placeChessAt(2, 1, "O");
-        game.placeChessAt(2, 2, "X");
-        game.placeChessAt(2, 3, "O");
-
-        game.placeChessAt(3, 1, "X");
-        game.placeChessAt(3, 2, "X");
-        game.placeChessAt(3, 3, "O");
-
+        game.parseBoardText(boardToken);
         game.displayBoard();
     }
 }
@@ -29,19 +25,30 @@ class Game {
         board = new String[height][width];
     }
 
+    public void parseBoardText(String boardText) {
+        char[] chars = boardText.toCharArray();
+        for (int i = 0; i < boardText.length(); i++) {
+            int rowIndex = i / width;
+            int colIndex = i % width;
+            board[rowIndex][colIndex] = Character.toString(chars[i]);
+        }
+    }
+
     public void placeChessAt(int row, int col, String chess) {
         board[row - 1][col - 1] = chess;
     }
 
     public void displayBoard() {
+        System.out.println("---------");
         for (int rowIndex = 0; rowIndex < height; rowIndex++) {
+            System.out.print("|");
             for (int colIndex = 0; colIndex < width; colIndex++) {
-                if (colIndex != 0) {
-                    System.out.print(" ");
-                }
+                System.out.print(" ");
                 System.out.print(board[rowIndex][colIndex]);
             }
+            System.out.print(" |");
             System.out.println();
         }
+        System.out.println("---------");
     }
 }
